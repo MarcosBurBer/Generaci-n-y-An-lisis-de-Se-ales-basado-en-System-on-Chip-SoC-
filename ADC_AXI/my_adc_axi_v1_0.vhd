@@ -13,7 +13,7 @@ entity my_adc_axi_v1_0 is
         spi_sclk  : out std_logic;
         spi_cs    : out std_logic;
 
-        -- PUERTOS NUEVOS PARA HDMI
+        -- PUERTOS PARA HDMI
         adc_data_export  : out std_logic_vector(11 downto 0);
         adc_valid_export : out std_logic;
 
@@ -120,3 +120,4 @@ begin
     );
 
 end arch_imp;
+
