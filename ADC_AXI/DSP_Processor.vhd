@@ -47,18 +47,18 @@ architecture Behavioral of DSP_Processor is
     constant MAV_SAMPLES_LOG2 : integer := 10; -- 2^10 = 1024 muestras
     constant MAV_SAMPLES : integer := 2**MAV_SAMPLES_LOG2;
 
-    -- --- NUEVO: MARGEN DE HISTÉRESIS ---
+    --  MARGEN DE HISTÃ‰RESIS ---
     -- Un margen de 100 unidades (aprox 0.08V) elimina el ruido de rebote.
     constant HYST_MARGIN : integer := 100; 
     constant THRESH_HIGH : integer := DC_OFFSET + HYST_MARGIN;
     constant THRESH_LOW  : integer := DC_OFFSET - HYST_MARGIN;
 
-    -- Señales para MAV
+    -- SeÃ±ales para MAV
     signal abs_val       : unsigned(11 downto 0);
     signal accum_mav     : unsigned(21 downto 0) := (others => '0');
     signal sample_cnt    : integer range 0 to MAV_SAMPLES := 0;
     
-    -- Señales para Frecuencímetro
+    -- SeÃ±ales para FrecuencÃ­metro
     signal raw_data_int : integer range 0 to 4095;
     signal crossings    : unsigned(31 downto 0) := (others => '0');
     signal timer_1sec   : integer range 0 to SYS_CLK_FREQ := 0;
@@ -72,7 +72,7 @@ begin
     raw_data_int <= to_integer(unsigned(data_in));
 
     -- ==========================================
-    -- 1. LÓGICA DE VALOR ABSOLUTO MEDIO (MAV)
+    -- 1. LÃ“GICA DE VALOR ABSOLUTO MEDIO (MAV)
     -- ==========================================
     process(clk, reset_n)
     begin
@@ -106,7 +106,7 @@ begin
     end process;
 
     -- =================================================================
-    -- 2. LÓGICA DE FRECUENCÍMETRO CON HISTÉRESIS (SCHMITT TRIGGER)
+    -- 2. LÃ“GICA DE FRECUENCÃMETRO CON HISTÃ‰RESIS (SCHMITT TRIGGER)
     -- =================================================================
     process(clk, reset_n)
     begin
@@ -117,20 +117,20 @@ begin
             signal_state <= '0';
         elsif rising_edge(clk) then
             
-            -- Detección de cruce con Histéresis
+            -- DetecciÃ³n de cruce con HistÃ©resis
             if data_valid = '1' then
                 
                 if signal_state = '0' then
                     -- Estamos en la zona BAJA. Esperamos a cruzar el UMBRAL ALTO.
                     if raw_data_int > THRESH_HIGH then
-                        crossings <= crossings + 1; -- ¡CRUCE VÁLIDO!
+                        crossings <= crossings + 1; -- Â¡CRUCE VÃLIDO!
                         signal_state <= '1';        -- Cambiamos estado a ALTO
                     end if;
                 else
                     -- Estamos en la zona ALTA. Esperamos a bajar del UMBRAL BAJO.
                     if raw_data_int < THRESH_LOW then
                         signal_state <= '0';        -- Cambiamos estado a BAJO (rearmar)
-                        -- No contamos aquí, solo rearmamos el trigger
+                        -- No contamos aquÃ­, solo rearmamos el trigger
                     end if;
                 end if;
                 
