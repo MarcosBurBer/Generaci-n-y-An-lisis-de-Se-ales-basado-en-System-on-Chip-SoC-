@@ -32,7 +32,7 @@ entity ADC_Controller is
     Port (
         clk      : in  STD_LOGIC;
         reset_n  : in  STD_LOGIC;
-        start    : in  STD_LOGIC; -- Se馻l para iniciar conversi髇
+        start    : in  STD_LOGIC; -- Se帽al para iniciar conversi贸n
         
         -- Interfaz SPI (Pmod AD1)
         sdata    : in  STD_LOGIC; -- MISO
@@ -47,11 +47,11 @@ end ADC_Controller;
 
 architecture Behavioral of ADC_Controller is
 
-    -- Definici髇 de Estados seg鷑 tu diagrama
+    -- Definici贸n de Estados 
     type state_type is (HOLD, FPORCH, SHIFTING, BPORCH);
     signal current_state : state_type;
 
-    -- C醠culos para el Prescaler (Generaci髇 de SCLK)
+    -- C谩lculos para el Prescaler (Generaci贸n de SCLK)
     constant CLK_DIV : integer := SYS_CLK_FREQ / (2 * SCLK_FREQ); 
     signal sclk_cnt  : integer range 0 to CLK_DIV := 0;
     signal sclk_int  : std_logic := '1'; -- Reloj interno SPI (empieza alto CPOL=1 o bajo CPOL=0)
@@ -66,7 +66,7 @@ architecture Behavioral of ADC_Controller is
 
 begin
 
-    -- Generaci髇 de SCLK (Prescaler)
+    -- Generaci贸n de SCLK (Prescaler)
     -- Genera un pulso 'sclk_en' cada vez que hay que cambiar el nivel de SCLK
     process(clk, reset_n)
     begin
@@ -90,7 +90,7 @@ begin
     
     sclk <= sclk_int;
 
-    -- M醧uina de Estados Finita (FSM)
+    -- M谩quina de Estados Finita (FSM)
     process(clk, reset_n)
     begin
         if reset_n = '0' then
@@ -116,7 +116,7 @@ begin
 
                 when FPORCH =>
                     cs <= '0'; -- Bajamos CS
-                    -- Seg鷑 diagrama: cnt < 3 T_100MHz
+                    -- Seg煤n diagrama: cnt < 3 T_100MHz
                     if wait_cnt = 3 then 
                         current_state <= SHIFTING;
                         wait_cnt <= 0;
@@ -126,14 +126,14 @@ begin
 
                 when SHIFTING =>
                     cs <= '0';
-                    -- L骻ica de muestreo en flanco de subida del SCLK (Rising Edge)
+                    -- L贸gica de muestreo en flanco de subida del SCLK (Rising Edge)
                     -- Pmod AD1: Los datos cambian en flanco de bajada, leemos en subida.
                     if sclk_cnt = CLK_DIV - 1 and sclk_int = '0' then -- Justo antes de ponerse a '1'
                         shift_reg <= shift_reg(14 downto 0) & sdata; -- Desplazamiento
                         bit_cnt <= bit_cnt + 1;
                     end if;
 
-                    -- Condici髇 de salida: 16 bits le韉os
+                    -- Condici贸n de salida: 16 bits le铆dos
                     if bit_cnt = 16 then
                         current_state <= BPORCH;
                         wait_cnt <= 0;
@@ -141,10 +141,10 @@ begin
 
                 when BPORCH =>
                     cs <= '0';
-                    -- Seg鷑 tu diagrama: cnt < 1 T_100MHz
+                    -- Seg煤n tu diagrama: cnt < 1 T_100MHz
                     if wait_cnt = 1 then
-                        drdy <= '1'; -- Dato v醠ido
-                        -- El Pmod AD1 env韆 4 ceros + 12 datos. 
+                        drdy <= '1'; -- Dato v谩lido
+                        -- El Pmod AD1 env铆a 4 ceros + 12 datos. 
                         -- Tomamos los 12 bits menos significativos.
                         data_out <= shift_reg(11 downto 0); 
                         current_state <= HOLD;
