@@ -1,5 +1,5 @@
 ----------------------------------------------------------------------------------
-IMPLEMENTACIÓN DEL DAC PMOD DA2
+-- IMPLEMENTACIÓN DEL DAC PMOD DA2
 --   TIENE 6 PINES:
 --    - nSync (cuando está en 0, se habilita a entrada de datos, cuando está a 1 se ignora la salida de datos)
 --    - DIN_A (12 bits)
