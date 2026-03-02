@@ -1,35 +1,5 @@
-----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
--- 
--- Create Date: 19.11.2025 20:58:40
--- Design Name: 
--- Module Name: ADC_CONTROLLER - Behavioral
--- Project Name: 
--- Target Devices: 
--- Tool Versions: 
--- Description: 
--- 
--- Dependencies: 
--- 
--- Revision:
--- Revision 0.01 - File Created
--- Additional Comments:
--- 
-----------------------------------------------------------------------------------
-
-
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-
--- Uncomment the following library declaration if using
--- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
-
--- Uncomment the following library declaration if instantiating
--- any Xilinx leaf cells in this code.
---library UNISIM;
---use UNISIM.VComponents.all;
 
 entity ADC_CONTROLLER is
     port( -- ENTRADAS
@@ -58,7 +28,7 @@ end component Prescaler;
 
 component SR_ADC is           
        Port ( -- ENTRADAS
-              clk    : in STD_LOGIC; -- señal de reloj (20 MHz)
+              clk    : in STD_LOGIC; -- seÃ±al de reloj (20 MHz)
               in_D1  : in STD_LOGIC; -- entrada dato 1 serie
               en_cnt : in STD_LOGIC; -- habilita el reloj
                
