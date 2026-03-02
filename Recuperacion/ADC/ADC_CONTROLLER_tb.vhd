@@ -1,35 +1,5 @@
-----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
--- 
--- Create Date: 24.11.2025 09:48:19
--- Design Name: 
--- Module Name: ADC_CONTROLLER_tb - Behavioral
--- Project Name: 
--- Target Devices: 
--- Tool Versions: 
--- Description: 
--- 
--- Dependencies: 
--- 
--- Revision:
--- Revision 0.01 - File Created
--- Additional Comments:
--- 
-----------------------------------------------------------------------------------
-
-
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-
--- Uncomment the following library declaration if using
--- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
-
--- Uncomment the following library declaration if instantiating
--- any Xilinx leaf cells in this code.
---library UNISIM;
---use UNISIM.VComponents.all;
 
 entity ADC_CONTROLLER_tb is
 --  Port ( );
@@ -38,26 +8,18 @@ end ADC_CONTROLLER_tb;
 architecture Behavioral of ADC_CONTROLLER_tb is
 
 component ADC_CONTROLLER is
-    port( -- ENTRADAS
+    port( 
           D1_in     : in STD_LOGIC;
           START     : in STD_LOGIC;
           rst       : in STD_LOGIC;
           clk_in    : in STD_LOGIC;
           
-          -- SALIDAS
+          
           DRDY    : out STD_LOGIC;
           D1_out  : out STD_LOGIC_VECTOR (11 downto 0); 
           clk_out : out STD_LOGIC;
           CS      : out STD_LOGIC);
 end component ADC_CONTROLLER;
-
-component rampa_serial_12bit is
-    port(
-        clk        : in  std_logic;         -- Reloj
-        rst      : in  std_logic;         -- rst síncrono
-        bit_out    : out std_logic          -- Salida serie
-    );
-end component rampa_serial_12bit;
 
 signal D1_in, START , clk_in, DRDY, clk_out, CS, rst, bit_out : STD_LOGIC;
 signal D1_out : STD_LOGIC_VECTOR (11 downto 0);
@@ -71,7 +33,7 @@ begin
                                    D1_out => D1_out,
                                    clk_out => clk_out,
                                    CS => CS); 
-    
+                                           
     GEN_CLK: process
     begin
         clk_in <= '1';
@@ -79,10 +41,37 @@ begin
         clk_in <= '0';
         wait for 2.5 ns; -- Toff
     end process;            
-    
-    D1_in <= '1';
-    START <= '0', '1' after 23 ns; 
-    
-                 
-                                   
+       
+    process
+    begin
+        -- 1. Reset inicial
+        rst <= '0'; 
+        wait for 20 ns;
+        rst <= '1'; 
+        wait for 20 ns;
+
+        -- 2. Iniciar
+        START <= '1';
+        wait for 10 ns;
+        START <= '0';
+        wait for 160 ns;
+        -- 3. Inyectar bits manualmente (ejemplo: 1010...)
+        -- Ajustamos al tiempo del clk_out (50 ns por bit)
+        D1_in <= '1'; wait for 50 ns; --[11]
+        D1_in <= '0'; wait for 50 ns; --[10]
+        D1_in <= '1'; wait for 50 ns; --[9]
+        D1_in <= '0'; wait for 50 ns; --[8]
+        D1_in <= '0'; wait for 50 ns; --[7]
+        D1_in <= '1'; wait for 50 ns; --[6]
+        D1_in <= '0'; wait for 50 ns; --[5]
+        D1_in <= '1'; wait for 50 ns; --[4]
+        D1_in <= '0'; wait for 50 ns; --[3]
+        D1_in <= '1'; wait for 50 ns; --[2]
+        D1_in <= '0'; wait for 50 ns; --[1]
+        D1_in <= '0'; wait for 50 ns; --[0]
+                
+        wait; -- Fin de la simulaciÃ³n
+    end process;
+                                                       
 end Behavioral;
+
