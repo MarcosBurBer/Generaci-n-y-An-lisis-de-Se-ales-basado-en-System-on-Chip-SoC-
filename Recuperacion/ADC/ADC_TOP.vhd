@@ -12,26 +12,6 @@ end ADC_TOP;
 
 architecture Behavioral of ADC_TOP is
     
-component Prescaler is
-    generic ( N_BITS: integer;
-              DIV : integer );
-             
-       Port ( nrst     : in STD_LOGIC;
-              clk_in  : in STD_LOGIC; -- reloj de entrada
-              clk_out : out STD_LOGIC); -- reloj escalado
-end component Prescaler;
-
-component ShiftReg_ADC is           
-       Port ( 
-              clk    : in STD_LOGIC; -- señal de reloj (20 MHz)
-              in_D1  : in STD_LOGIC; -- entrada dato 
-              enable : in STD_LOGIC; -- habilita el reloj
-               
-              
-              out_D1      : out STD_LOGIC_VECTOR (11 downto 0); -- salida dato 1 
-              Shift_Cnt : out STD_LOGIC_VECTOR (3 downto 0)); -- contador de cambio
-end component ShiftReg_ADC;
-
 component FSM_ADC is
   Port (
         clk_100   : in  STD_LOGIC;
@@ -44,6 +24,26 @@ component FSM_ADC is
         enable    : out STD_LOGIC
        );
 end component FSM_ADC;
+
+component ShiftReg_ADC is           
+       Port ( 
+              clk    : in STD_LOGIC; -- señal de reloj (20 MHz)
+              in_D1  : in STD_LOGIC; -- entrada dato 
+              enable : in STD_LOGIC; -- habilita el reloj
+               
+              
+              out_D1      : out STD_LOGIC_VECTOR (11 downto 0); -- salida dato 1 
+              Shift_Cnt : out STD_LOGIC_VECTOR (3 downto 0)); -- contador de cambio
+end component ShiftReg_ADC;
+
+component Prescaler is
+    generic ( N_BITS: integer;
+              DIV : integer );
+             
+       Port ( nrst     : in STD_LOGIC;
+              clk_in  : in STD_LOGIC; -- reloj de entrada
+              clk_out : out STD_LOGIC); -- reloj escalado
+end component Prescaler;
 
     signal s_clk_20, s_clk_100, s_en: STD_LOGIC;
     signal s_cnt : STD_LOGIC_VECTOR (3 downto 0);
@@ -79,6 +79,6 @@ begin
                                   enable => s_en);    
    
 
-    o_clk <= s_clk_20; -- salida de 20 MHz para el ADC
+    o_clk <= s_clk_20; -- 20 MHz al ADC
 
 end Behavioral;
