@@ -1,46 +1,22 @@
 ----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
--- 
--- Create Date: 27.10.2025 17:23:03
--- Design Name: 
--- Module Name: Shift_Register - Behavioral
--- Project Name: 
--- Target Devices: 
--- Tool Versions: 
--- Description: 
--- 
--- Dependencies: 
--- 
--- Revision:
--- Revision 0.01 - File Created
--- Additional Comments: IMPLEMENTACI”N DEL DAC PMOD DA2
+IMPLEMENTACI√ìN DEL DAC PMOD DA2
 --   TIENE 6 PINES:
---    - nSync (cuando est· en 0, se habilita a entrada de datos, cuando est· a 1 se ignora la salida de datos)
+--    - nSync (cuando est√° en 0, se habilita a entrada de datos, cuando est√° a 1 se ignora la salida de datos)
 --    - DIN_A (12 bits)
 --    - DIN_B (12 bits)
---    - SLCK (seÒal de reloj de hasta 30 MHz sigue el protocolo SPI y se deben mandar 16 pulsos de reloj donde el MSB de DIN ser· mandado el primero de los ˙ltimos 12 pulsos)
+--    - SLCK (se√±al de reloj de hasta 30 MHz sigue el protocolo SPI y se deben mandar 16 pulsos de reloj donde el MSB de DIN ser√° mandado el primero de los √∫ltimos 12 pulsos)
 --    - GND (0 V)
 --    - Vcc (3,3 V)
---    - OutA (salida seÒal analÛgica entre 0 V y 3,3 V con una resoluciÛn de 0,8 mV por bit)
+--    - OutA (salida se√±al anal√≥gica entre 0 V y 3,3 V con una resoluci√≥n de 0,8 mV por bit)
 ----------------------------------------------------------------------------------
-
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-
--- Uncomment the following library declaration if using
--- arithmetic functions with Signed or Unsigned values
 use IEEE.NUMERIC_STD.ALL;
-
--- Uncomment the following library declaration if instantiating
--- any Xilinx leaf cells in this code.
---library UNISIM;
---use UNISIM.VComponents.all;
 
 entity SR_ADC is           
        Port ( -- ENTRADAS
-              clk    : in STD_LOGIC; -- seÒal de reloj (20 MHz)
+              clk    : in STD_LOGIC; -- se√±al de reloj (20 MHz)
               in_D1  : in STD_LOGIC; -- entrada dato 1 serie
               en_cnt : in STD_LOGIC; -- habilita el reloj
                
@@ -51,9 +27,9 @@ end SR_ADC;
 
 architecture Behavioral of SR_ADC is
 
-    -- DECLARACI”N DE SE—ALES
-    signal SPI_in1 : STD_LOGIC_VECTOR(15 downto 0) := (others => '0'); -- seÒal de 4 bits para mandar por protocolo SPI
-    signal counter : unsigned(3  downto 0) := (others => '0'); -- contador del n˙mero de veces que se desplaza un registro
+    -- DECLARACI√ìN DE SE√ëALES
+    signal SPI_in1 : STD_LOGIC_VECTOR(15 downto 0) := (others => '0'); -- se√±al de 4 bits para mandar por protocolo SPI
+    signal counter : unsigned(3  downto 0) := (others => '0'); -- contador del n√∫mero de veces que se desplaza un registro
 
 begin
 
