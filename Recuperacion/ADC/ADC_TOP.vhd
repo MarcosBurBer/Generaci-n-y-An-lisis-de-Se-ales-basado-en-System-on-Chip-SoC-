@@ -1,88 +1,84 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
-entity ADC_CONTROLLER is
-    port( -- ENTRADAS
-          D1_in     : in STD_LOGIC;
-          START     : in STD_LOGIC;
-          rst       : in STD_LOGIC := '1';
-          clk_in    : in STD_LOGIC;
-          
-          -- SALIDAS
-          DRDY    : out STD_LOGIC;
-          D1_out  : out STD_LOGIC_VECTOR (11 downto 0); 
-          clk_out : out STD_LOGIC;
-          CS      : out STD_LOGIC);
-end ADC_CONTROLLER;
+entity ADC_TOP is
+    port( 
+          i_D1     : in STD_LOGIC; -- dato serial
+          start, nrst, i_clk     : in STD_LOGIC;
+         
+          o_D1  : out STD_LOGIC_VECTOR (11 downto 0); -- bus 12 bits
+          drdy, cs, o_clk     : out STD_LOGIC);
+end ADC_TOP;
 
-architecture Behavioral of ADC_CONTROLLER is
+architecture Behavioral of ADC_TOP is
     
 component Prescaler is
     generic ( N_BITS: integer;
-              VAL_DIV : integer );
+              DIV : integer );
              
-       Port ( rst     : in STD_LOGIC;
+       Port ( nrst     : in STD_LOGIC;
               clk_in  : in STD_LOGIC; -- reloj de entrada
               clk_out : out STD_LOGIC); -- reloj escalado
 end component Prescaler;
 
-component SR_ADC is           
-       Port ( -- ENTRADAS
+component ShiftReg_ADC is           
+       Port ( 
               clk    : in STD_LOGIC; -- señal de reloj (20 MHz)
-              in_D1  : in STD_LOGIC; -- entrada dato 1 serie
-              en_cnt : in STD_LOGIC; -- habilita el reloj
+              in_D1  : in STD_LOGIC; -- entrada dato 
+              enable : in STD_LOGIC; -- habilita el reloj
                
-              -- SALIDAS
-              out_D1      : out STD_LOGIC_VECTOR (11 downto 0); -- salida dato 1 en bus
-              Sft_Counter : out STD_LOGIC_VECTOR (3 downto 0)); -- contador de cambio
-end component SR_ADC;
+              
+              out_D1      : out STD_LOGIC_VECTOR (11 downto 0); -- salida dato 1 
+              Shift_Cnt : out STD_LOGIC_VECTOR (3 downto 0)); -- contador de cambio
+end component ShiftReg_ADC;
 
 component FSM_ADC is
   Port (
         clk_100   : in  STD_LOGIC;
-        rst       : in  STD_LOGIC;
-        START     : in  STD_LOGIC;
+        nrst       : in  STD_LOGIC;
+        start     : in  STD_LOGIC;
         cntData   : in  STD_LOGIC_VECTOR (3 downto 0);
 
         DRDY      : out STD_LOGIC;
         CS        : out STD_LOGIC;
-        en_cnt    : out STD_LOGIC
+        enable    : out STD_LOGIC
        );
 end component FSM_ADC;
 
-    signal clk_20, clk_100, en_CONECT : STD_LOGIC;
-    signal cnt_CONECT : STD_LOGIC_VECTOR (3 downto 0);
+    signal s_clk_20, s_clk_100, s_en: STD_LOGIC;
+    signal s_cnt : STD_LOGIC_VECTOR (3 downto 0);
     
 begin
 
     PSC_20MHz: Prescaler 
         generic map ( N_BITS => 3,
-                      VAL_DIV => 10) -- (200 MHz)/10 = 20 MHz
-           port map ( rst => rst,
-                      clk_in => clk_in,
-                      clk_out => clk_20);
+                      DIV => 10) -- (200 MHz)/10 = 20 MHz
+           port map ( nrst => nrst,
+                      clk_in => i_clk,
+                      clk_out => s_clk_20);
                       
     PSC_100MHz: Prescaler 
         generic map ( N_BITS => 2,
-                      VAL_DIV => 2) -- (200 MHz)/2 = 100 MHz
-           port map ( rst => rst,
-                      clk_in => clk_in,
-                      clk_out => clk_100);
+                      DIV => 2) -- (200 MHz)/2 = 100 MHz
+           port map ( nrst => nrst,
+                      clk_in => i_clk,
+                      clk_out => s_clk_100);
                                           
-    ShiftR_ADC: SR_ADC port map ( clk => clk_20,    
-                                  in_D1 => D1_in, 
-                                  en_cnt => en_CONECT,     
-                                  out_D1 => D1_out,
-                                  Sft_Counter => cnt_CONECT);
+    ShiftRegister: ShiftReg_ADC port map ( clk => s_clk_20,    
+                                  in_D1 => i_D1, 
+                                  enable => s_en,     
+                                  out_D1 => o_D1,
+                                  Shift_Cnt => s_cnt);
                                 
-   FSMach_ADC: FSM_ADC port map ( clk_100 => clk_100,    
-                                  rst => rst,   
-                                  START => START, 
-                                  cntData => cnt_CONECT,    
-                                  DRDY => DRDY,     
-                                  CS => CS,       
-                                  en_cnt => en_CONECT);    
+   FSM: FSM_ADC port map ( clk_100 => s_clk_100,    
+                                  nrst => nrst,   
+                                  start => start, 
+                                  cntData => s_cnt,    
+                                  DRDY => drdy,     
+                                  CS => cs,       
+                                  enable => s_en);    
+   
 
-    clk_out <= clk_20; -- salida de 20 MHz para el ADC
-    
+    o_clk <= s_clk_20; -- salida de 20 MHz para el ADC
+
 end Behavioral;
