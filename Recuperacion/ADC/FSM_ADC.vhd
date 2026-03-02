@@ -2,14 +2,15 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
+
 entity FSM_ADC is
   Port (   clk_100 : in STD_LOGIC;
-           rst : in STD_LOGIC;
+           nrst : in STD_LOGIC;
            START : in STD_LOGIC; 
            cntData : in STD_LOGIC_VECTOR (3 downto 0);
            DRDY: out STD_LOGIC;
            CS : out STD_LOGIC;
-           en_cnt : out STD_LOGIC);
+           enable : out STD_LOGIC);
 end FSM_ADC;
 
 architecture Behavioral of FSM_ADC is
@@ -23,9 +24,9 @@ architecture Behavioral of FSM_ADC is
 begin
    counter_data <= cntData;
    
-  P_S_FSM: process (clk_100, rst)
+  P_S_FSM: process (clk_100, nrst)
     begin
-       if rst = '0' then
+       if nrst = '0' then
             e_act <= HOLD;
         elsif rising_edge(clk_100) then
             e_act<= e_sig;
@@ -37,14 +38,14 @@ begin
      
         CS     <= '0';
         DRDY   <= '1';
-        en_cnt <= '0';
+        enable <= '0';
         e_sig  <= e_act;
 
         case e_act is
             when HOLD =>
                 CS     <= '1';
                 DRDY   <= '0';
-                en_cnt <= '0';
+                enable <= '0';
                 estado <= "00";
                 if START = '1' then
                    e_sig <= FPORCH;
@@ -53,7 +54,7 @@ begin
             when FPORCH =>
                 CS     <= '0';
                 DRDY   <= '0';
-                en_cnt <= '0';
+                enable <= '0';
                 estado <= "01";
                 if counter = "11" then
                     e_sig <= SHIFTING;
@@ -62,7 +63,7 @@ begin
             when SHIFTING =>
                 CS     <= '0';
                 DRDY   <= '0';
-                en_cnt <= '1';
+                enable <= '1';
                 estado <= "10";
                 if counter_data = "1111" and counter_sync = "100" then
                     e_sig <= BPORCH;
@@ -71,10 +72,10 @@ begin
               when BPORCH =>
                 CS     <= '0';
                 DRDY   <= '1';
-                en_cnt <= '1';
+                enable <= '1';
                 estado <= "11";
                     if counter_sync = "110" then
-                        en_cnt <= '0';
+                        enable <= '0';
                     end if;
                     if counter = "01" then
                         e_sig <= HOLD;
@@ -85,9 +86,9 @@ begin
         end case;
        end process;
        
-    Contadores: process(clk_100, rst)
+    Contadores: process(clk_100, nrst)
     begin
-    if rst = '0' then
+    if nrst = '0' then
         counter <= "00";
         counter_sync <= "000"; -- Reset
     elsif rising_edge(clk_100) then
