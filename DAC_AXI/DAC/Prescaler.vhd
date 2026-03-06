@@ -40,18 +40,18 @@ end Prescaler;
 architecture Structural of Prescaler is
   
 
-    -- Declaración del componente de contador genérico
+    -- DeclaraciÃ³n del componente de contador genÃ©rico
     component ContadorGenerico is
         generic (
-            N_BITS : integer := 4;  -- Número de bits del contador
-            MAX_VALOR : integer := 10  -- Valor máximo del contador
+            N_BITS : integer := 4;  -- NÃºmero de bits del contador
+            MAX_VALOR : integer := 10  -- Valor mÃ¡ximo del contador
         );
         port (
             clk        : in  std_logic;                           -- Reloj
             rst      : in  std_logic;                           -- Reset
           --  enable     : in  std_logic;
             cuenta     : out std_logic_vector(N_BITS-1 downto 0); -- Salida de cuenta
-            f_cuenta   : out std_logic                            -- Señal de "done"
+            f_cuenta   : out std_logic                            -- SeÃ±al de "done"
         );
     end component;
 
@@ -61,7 +61,7 @@ begin
     DIVFREQ : ContadorGenerico
         generic map (
             N_BITS => 10,
-            MAX_VALOR => 1000  -- DIV 100MHz/1000 = 100KHz
+            MAX_VALOR => 4  -- DIV 100MHz/4 = 25MHz
         )
         port map (
             clk => CLK50,
